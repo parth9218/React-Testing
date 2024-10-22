@@ -1,5 +1,5 @@
-import './styles.css';
-import ProductList from './components/ProductList';
+import "./App.css";
+import ProductList from "./components/ProductList";
 
 export default function App() {
   return (

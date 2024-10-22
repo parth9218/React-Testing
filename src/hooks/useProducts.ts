@@ -1,15 +1,23 @@
 import { faker } from "@faker-js/faker/locale/en";
 import { useState } from "react";
 import useSWR from "swr";
+import { Product } from "../models/product.model";
 
 const LIMIT = 6;
+interface Props {
+  limit: number;
+}
 
-let cache = [];
-const productsFetcher = async () => {
+let cache: Product[] = [];
+const productsFetcher = async ({
+  url,
+  limit = LIMIT
+}: { url: string, limit: number }) => {
+  url = url.split("?")[1];
   await pause(800);
-  const nextPage = new Array(LIMIT).fill(0).map(() => {
+  const nextPage = new Array(limit).fill(0).map(() => {
     return {
-      id: faker.datatype.uuid(),
+      id: faker.string.uuid(),
       name: faker.commerce.productName(),
       price: faker.commerce.price(),
       material: faker.commerce.productMaterial(),
@@ -21,10 +29,11 @@ const productsFetcher = async () => {
   return cache;
 };
 
-const useProducts = () => {
+const useProducts = ({ limit }: Props) => {
+  limit = LIMIT;
   const [page, setPage] = useState(0);
   const { isLoading, data } = useSWR(
-    `/products/?page=${page}`,
+    { url: `/products/?page=${page}`, limit },
     productsFetcher,
     {
       revalidateIfStale: false,
@@ -41,6 +50,6 @@ const useProducts = () => {
   };
 };
 
-const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const pause = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export default useProducts;

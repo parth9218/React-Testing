@@ -1,0 +1,9 @@
+# Ignore artifacts:
+build
+coverage
+public/
+.vscode
+.vs
+.husky
+.git
+*.yml

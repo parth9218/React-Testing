@@ -1,4 +1,11 @@
-function ProductCard({ product: { name, price, material, color } }) {
+import { Product } from "../models/product.model";
+
+interface Props {
+  product: Product;
+}
+
+function ProductCard({ product }: Props) {
+  const { name, price, material, color } = product;
   return (
     <div className="col-span-1 flex flex-col">
       <div
