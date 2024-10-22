@@ -25,7 +25,7 @@ export const UserForm = ({ handleUserAdd }: Props) => {
       alert(errorString);
       return;
     }
-    handleUserAdd(new User(name, email));
+    handleUserAdd(user);
     clearInputs();
   };
 
