@@ -11,6 +11,7 @@ export default function App() {
   };
   return (
     <div className="App">
+      <h1>Users</h1>
       <UserForm handleUserAdd={handleUserAdd} />
       <UserList users={users} />
     </div>

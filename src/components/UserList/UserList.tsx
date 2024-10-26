@@ -13,7 +13,7 @@ export const UserList = ({ users }: Props) => {
           <th>Email</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody data-testid="users">
         {users.map((user) => (
           <tr key={user.id}>
             <td>{user.name}</td>

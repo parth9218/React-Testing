@@ -1,9 +1,9 @@
-import { IsAlpha, IsEmail, IsNotEmpty } from "class-validator";
+import { IsAlpha, IsEmail, IsNotEmpty, MaxLength, MinLength } from "class-validator";
 import { faker } from "@faker-js/faker";
 
 export class User {
       id: string;
-      @IsNotEmpty() @IsAlpha()
+      @IsNotEmpty() @IsAlpha() @MinLength(3) @MaxLength(20)
       name: string;
       @IsNotEmpty() @IsEmail()
       email: string;

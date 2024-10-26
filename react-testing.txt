@@ -1,0 +1,9 @@
+Assign accessible names via aria-label attribute
+
+<button aria-label="sign in">
+      <svg />
+</button>
+
+const button = screen.getByRole('button', {
+      name: /sign in/i
+})
