@@ -1,6 +1,6 @@
 import './App.css';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
-import { SDOSelection } from './sdo';
+import { SDOSelection } from './lib/sdo';
 
 export default function App() {
   const [sdoClass, setSDOClass] = useState<SDOSelection>();
@@ -12,6 +12,7 @@ export default function App() {
       new Array(30).fill(0).map((_, i) => i + 1),
       blockedDates
     );
+    sdoSelection.freezeSDO(-1);
     setSDOClass(sdoSelection);
     return () => {
       console.log(ref.current);

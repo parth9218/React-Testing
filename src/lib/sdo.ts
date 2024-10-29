@@ -17,11 +17,22 @@ export class SDOSelection {
     this.SDO.sort((a, b) => a[0] - b[0]);
   }
 
-  constructor(range: number[], blockedDates: number[]) {
+  constructor(range: number[], blockedDates: number[], freezedSDO: number = -1, SDO?: number[][]) {
     this.SDO = [[], []];
     this.blockedDates = blockedDates;
     this.range = range;
     this.errorFlag = false;
+
+    this.freezeSDO(freezedSDO);
+
+    // Sort the SDO array if it is provided
+    if (SDO) {
+      if (SDO[0].length > 0 && SDO[1].length > 0) {
+        this.SDO = SDO.sort((a, b) => a[0] - b[0]);
+      } else if (SDO[1].length > 0) {
+        this.SDO[0] = SDO[1];
+      }
+    }
   }
 
   freezeSDO(index: number) {
@@ -34,13 +45,8 @@ export class SDOSelection {
   updateSDO(selectedDate: number) {
     this.errorFlag = false;
 
-    function checkForBoundaries(arr: number[][], index: number, selectedDate: number | null, min: number | null, max: number | null) {
-      if (selectedDate === min || selectedDate === max) {
-        arr[index] = arr[index].filter((date) => date !== selectedDate);
-        return true;
-      }
-      return false;
-    }
+    const checkForBoundaries = (selectedDate: number | null, min: number | null, max: number | null) =>
+      selectedDate === min || selectedDate === max
 
     const checkIfSelectedFallsInSDO = (selectedDate: number, index: number) => {
       if (this.SDO[index].includes(selectedDate)) {
@@ -115,6 +121,10 @@ export class SDOSelection {
 
     if (isZeroSDOExists()) {
       this.SDO[0] = [selectedDate];
+      if (this.freezedSDO === 0) {
+
+        this.freezedSDO = 1;
+      }
       return;
     }
     // Get the min and max values of the current global array, if it exists
@@ -131,42 +141,68 @@ export class SDOSelection {
         this.SDO[1] = [];
       }
     }
+    const removeBoundaryValue = (selectedDate: number, index: number) => this.SDO[index] = this.SDO[index].filter((date) => date !== selectedDate);
 
     // Step 3: Check if the selectedDate is on the boundary values of this.SDO[0] and remove it if so
-    if (this.freezedSDO !== 0 && checkForBoundaries(this.SDO, 0, selectedDate, sdo1StartDate, sdo1EndDate)) {
+    if (checkForBoundaries(selectedDate, sdo1StartDate, sdo1EndDate)) {
+      if (this.freezedSDO === 0) return;
+      removeBoundaryValue(selectedDate, 0);
       checkAndSortSDO();
       return;
     }
-    if (this.freezedSDO !== 1 && checkForBoundaries(this.SDO, 1, selectedDate, sdo2StartDate, sdo2EndDate)) return;
+    if (checkForBoundaries(selectedDate, sdo2StartDate, sdo2EndDate)) {
+      if (this.freezedSDO === 1) return;
+      removeBoundaryValue(selectedDate, 1);
+      return;
+    };
     // Step 2: Check if selectedDate is in this.SDO; if so, empty the global array
-    if (this.freezedSDO !== 0 && checkIfSelectedFallsInSDO(selectedDate, 0)) {
+    if (checkIfSelectedFallsInSDO(selectedDate, 0)) {
+      if (this.freezedSDO === 0) return;
       checkAndSortSDO();
       return;
     }
-    if (this.freezedSDO !== 1 && checkIfSelectedFallsInSDO(selectedDate, 1)) return;
-
-    if (isOneSDOExists() || this.freezedSDO !== -1) {
-      if (isAtRightSideNoAttach(selectedDate, this.SDO[0])) {
-        if (this.freezedSDO === 1) {
-          this.SDO[0] = [selectedDate];
-        } else {
-          this.SDO[1] = [selectedDate];
-        }
-      }
-      else if (isAtLeftSideNoAttach(selectedDate, this.SDO[0])) {
-        if (this.freezedSDO === 1) {
-          this.SDO[0] = [selectedDate];
-        } else {
-          // Swap SDOs and update freezed SDO
-          this.SDO[1] = this.SDO[0];
-          this.SDO[0] = [selectedDate];
-          this.freezedSDO = this.freezedSDO !== -1 ? 0 : -1;
-        }
-      }
+    if (checkIfSelectedFallsInSDO(selectedDate, 1)) {
+      if (this.freezedSDO === 1) return;
+      checkAndSortSDO();
+      return;
     }
-    if (isOneSDOExists() && this.freezedSDO !== 0 && isAtRightSideAttach(selectedDate, this.SDO[0])) {
+
+    // if (isOneSDOExists() || this.freezedSDO !== -1) {
+    //   if (isAtRightSideNoAttach(selectedDate, this.SDO[0])) {
+    //     if (this.freezedSDO === 1) {
+    //       this.SDO[0] = [selectedDate];
+    //     } else {
+    //       this.SDO[1] = [selectedDate];
+    //     }
+    //   }
+    //   else if (isAtLeftSideNoAttach(selectedDate, this.SDO[0])) {
+    //     if (this.freezedSDO === 1) {
+    //       this.SDO[0] = [selectedDate];
+    //     } else {
+    //       // Swap SDOs and update freezed SDO
+    //       this.SDO[1] = this.SDO[0];
+    //       this.SDO[0] = [selectedDate];
+    //       this.freezedSDO = this.freezedSDO !== -1 ? 0 : -1;
+    //     }
+    //   }
+    // }
+    if (isOneSDOExists() && isAtRightSideNoAttach(selectedDate, this.SDO[0])) {
+      if (this.freezedSDO === 1) {
+        this.SDO[0] = [selectedDate];
+      } else {
+        this.SDO[1] = [selectedDate];
+      }
+    } else if (isOneSDOExists() && isAtLeftSideNoAttach(selectedDate, this.SDO[0])) {
+      this.SDO[1] = this.SDO[0];
+      this.SDO[0] = [selectedDate];
+      this.freezedSDO = this.freezedSDO === -1 ? -1 : 1;
+    }
+    else if (isOneSDOExists() && this.freezedSDO !== 0 && isAtRightSideAttach(selectedDate, this.SDO[0])) {
       this.SDO[0] = adjustSDOFromRight(selectedDate, this.SDO[0]);
-    } else if (this.freezedSDO !== 0 && isAtLeftSideAttach(selectedDate, this.SDO[0])) {
+    } else if (this.freezedSDO !== 0 && isAtLeftSideNoAttach(selectedDate, this.SDO[0])) {
+      this.SDO[0] = [selectedDate];
+    }
+    else if (this.freezedSDO !== 0 && isAtLeftSideAttach(selectedDate, this.SDO[0])) {
       this.SDO[0] = adjustSDOFromLeft(selectedDate, this.SDO[0]);
     } else if (isAtRightSideNoAttach(selectedDate, this.SDO[1])) {
       if (this.freezedSDO === 1) {

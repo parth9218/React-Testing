@@ -47,7 +47,7 @@ describe('SDO with no Blocked Dates', () => {
             expect(sdoClass.SDOArray[0]).toEqual([10, 11, 12]);
             expect(sdoClass.SDOArray[1]).toEqual([]);
       });
-      test('check for consecutive selection', () => {
+      test('check for consecutive selection at right when One SDO', () => {
             sdoClass.updateSDO(1);
             sdoClass.updateSDO(3);
             expect(sdoClass.SDOArray[0]).toEqual([1, 2, 3]);
@@ -70,6 +70,14 @@ describe('SDO with no Blocked Dates', () => {
             expect(sdoClass.SDOArray[0]).toEqual([4]);
             expect(sdoClass.SDOArray[1]).toEqual([10, 11, 12, 13]);
       });
+      test('check for second SDO insertion when the selected date cannot be appended', () => {
+            sdoClass.updateSDO(2);
+            sdoClass.updateSDO(4);
+            expect(sdoClass.SDOArray[0]).toEqual([2, 3, 4]);
+
+            sdoClass.updateSDO(10);
+            expect(sdoClass.SDOArray[1]).toEqual([10]);
+      })
       test('middle date selection replaces the second list', () => {
             sdoClass.updateSDO(5);
             sdoClass.updateSDO(7);
@@ -111,7 +119,7 @@ describe('SDO with no Blocked Dates', () => {
             expect(sdoClass.SDOArray[0]).toEqual([5, 6, 7]);
             expect(sdoClass.SDOArray[1]).toEqual([17, 18, 19, 20]);
       });
-      test('check for gap between the dates', () => {
+      test('check for gap erros between the dates', () => {
             sdoClass.updateSDO(1);
             sdoClass.updateSDO(3);
             expect(sdoClass.SDOArray[0]).toEqual([1, 2, 3]);
