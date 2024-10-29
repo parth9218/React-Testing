@@ -89,7 +89,6 @@ describe('SDO with no Blocked Dates', () => {
 
             sdoClass.updateSDO(12);
             expect(sdoClass.SDOArray[1]).toEqual([12]);
-
             expect(sdoClass.SDOArray[0]).toEqual([5, 6, 7]);
             expect(sdoClass.SDOArray[1]).toEqual([12]);
       });
@@ -130,5 +129,52 @@ describe('SDO with no Blocked Dates', () => {
 
             sdoClass.updateSDO(6);
             expect(sdoClass.error).toBe(true);
+      });
+});
+
+describe('SDO with Blocked Dates', () => {
+      let sdoClass = new sdo.SDOSelection(
+            new Array(30).fill(0).map((_, i) => i + 1),
+            [4, 5, 6, 7, 12, 13, 24, 25, 26, 27]
+      );
+      beforeEach(() => {
+            sdoClass = new sdo.SDOSelection(
+                  new Array(30).fill(0).map((_, i) => i + 1),
+                  [4, 5, 6, 7, 12, 13, 24, 25, 26, 27]
+            )
+      });
+
+      test('Try to select the blocked dates should not alter the SDO Arrays', () => {
+            sdoClass.updateSDO(4);
+            expect(sdoClass.SDOArray[0]).toEqual([]);
+            expect(sdoClass.SDOArray[1]).toEqual([]);
+
+            sdoClass.updateSDO(13);
+            expect(sdoClass.SDOArray[0]).toEqual([]);
+            expect(sdoClass.SDOArray[1]).toEqual([]);
+
+            sdoClass.updateSDO(1);
+            sdoClass.updateSDO(3);
+            expect(sdoClass.SDOArray[0]).toEqual([1, 2, 3]);
+
+            sdoClass.updateSDO(4);
+            expect(sdoClass.SDOArray[0]).toEqual([1, 2, 3]);
+
+
+            sdoClass.updateSDO(10);
+            sdoClass.updateSDO(12);
+            expect(sdoClass.SDOArray[1]).toEqual([10]);
+      });
+      test('Stop selecting the dates once blockdate is encountered', () => {
+            sdoClass.updateSDO(1);
+            sdoClass.updateSDO(3);
+            expect(sdoClass.SDOArray[0]).toEqual([1, 2, 3]);
+
+            sdoClass.updateSDO(10);
+            sdoClass.updateSDO(11);
+            expect(sdoClass.SDOArray[1]).toEqual([10, 11]);
+
+            sdoClass.updateSDO(14);
+            expect(sdoClass.SDOArray[1]).toEqual([14]);
       });
 });

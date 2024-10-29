@@ -10,9 +10,11 @@ export default function App() {
   useEffect(() => {
     const sdoSelection = new SDOSelection(
       new Array(30).fill(0).map((_, i) => i + 1),
-      blockedDates
+      blockedDates,
+      5,
+      [[], [12, 13, 14]],
+      true
     );
-    sdoSelection.freezeSDO(-1);
     setSDOClass(sdoSelection);
     return () => {
       console.log(ref.current);
