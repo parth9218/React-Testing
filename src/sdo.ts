@@ -160,7 +160,7 @@ export class SDOSelection {
           // Swap SDOs and update freezed SDO
           this.SDO[1] = this.SDO[0];
           this.SDO[0] = [selectedDate];
-          this.freezedSDO = 0;
+          this.freezedSDO = this.freezedSDO !== -1 ? 0 : -1;
         }
       }
     }
