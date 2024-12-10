@@ -6,7 +6,7 @@ export class SDOSelection {
   private range: number[];
   private isFreezedAvailable: boolean;
   private freezedSDO: number[];
-  private gap: number = 3;
+  private gap: number = 5;
 
   get error() {
     return this.errorFlag;
@@ -18,7 +18,7 @@ export class SDOSelection {
     this.blockedDates = blockedDates;
     this.range = range;
     this.errorFlag = false;
-    this.gap = gap;
+    if(gap) this.gap = gap;
 
     this.isFreezedAvailable = isFreezedAvailable || false;
     this.SDO = SDO || [[], []];
@@ -38,12 +38,12 @@ export class SDOSelection {
       sdo.length !== 0 && selectedDate < sdo[0] - 3;
     const isAtRightSideNoAttach = (selectedDate: number, sdo: number[]) =>
       sdo.length !== 0 && selectedDate > sdo[sdo.length - 1] + 3;
-    const isAtLeftSideAttach = (selectedDate: number, sdo: number[], gap: number = 3) =>
-      sdo.length !== 0 && (selectedDate < sdo[0] && selectedDate >= sdo[0] - gap);
-    const isAtRightSideAttach = (selectedDate: number, sdo: number[], gap: number = 3) =>
+    const isAtLeftSideAttach = (selectedDate: number, sdo: number[]) =>
+      sdo.length !== 0 && (selectedDate < sdo[0] && selectedDate >= sdo[0] - 3);
+    const isAtRightSideAttach = (selectedDate: number, sdo: number[]) =>
       sdo.length !== 0 &&
       selectedDate > sdo[sdo.length - 1] &&
-      selectedDate <= sdo[sdo.length - 1] + gap;
+      selectedDate <= sdo[sdo.length - 1] + 3;
 
     // const isAtMiddleNoAttach = (selectedDate: number, sdo1: number[], sdo2: number[]) =>
     //   isAtRightSideNoAttach(selectedDate, sdo1) &&
@@ -58,17 +58,20 @@ export class SDOSelection {
       if (sdo1[0] > sdo2[0]) {
         [sdo1, sdo2] = [sdo2, sdo1];
       }
-      return isAtRightSideNoAttach(selectedDate, sdo1) || isAtLeftSideNoAttach(selectedDate, sdo2);
+      return  (sdo1[sdo1.length - 1] + this.gap < selectedDate) || (selectedDate < sdo2[0] - this.gap);
     }
 
-    const canGapBeMaintainedWithFreezed = (selectedDate: number) => this.freezedSDO.length === 0 || (!isAtLeftSideAttach(selectedDate, this.freezedSDO, this.gap) && !isAtRightSideAttach(selectedDate, this.freezedSDO, this.gap));
+    const canGapBeMaintainedWithFreezed = (selectedDate: number) => this.freezedSDO.length === 0 || (
+      (selectedDate < this.freezedSDO[0] && (selectedDate < this.freezedSDO[0] - this.gap)) ||
+      (selectedDate > this.freezedSDO[this.freezedSDO.length - 1]! && (this.freezedSDO[this.freezedSDO.length - 1]! + this.gap < selectedDate))
+    );
 
     const isZeroSDOExists = () => this.SDO[0].length === 0;
     const isOneSDOExists = () => this.SDO[0].length > 0 && (this.isFreezedAvailable || this.SDO[1].length === 0);
     const isTwoSDOExists = () => this.SDO[0].length > 0 && (this.isFreezedAvailable || this.SDO[1].length > 0);
 
     const adjustSDOFromRight = (selectedDate: number, sdo: number[]) => {
-      const arr = [];
+      let arr = [];
       for (let i = selectedDate; i >= Math.max(selectedDate - 3, sdo[0]); i--) {
         if (this.blockedDates.includes(i)) {
           break;
@@ -76,6 +79,7 @@ export class SDOSelection {
         arr.push(i);
       }
       arr.sort((a, b) => a - b);
+      if(arr.length && !sdo.includes(arr[0])) arr = [selectedDate];
       return arr;
     };
 
@@ -90,6 +94,7 @@ export class SDOSelection {
         arr.push(i);
       }
       arr.sort((a, b) => a - b);
+      if(arr.length && !sdo.includes(arr[arr.length - 1])) arr = [selectedDate];
       return arr;
     };
     if (!this.range.includes(selectedDate)) {

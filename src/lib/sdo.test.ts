@@ -8,7 +8,8 @@ describe('SDO with no Blocked Dates', () => {
       beforeEach(() => {
             sdoClass = new sdo.SDOSelection(
                   new Array(30).fill(0).map((_, i) => i + 1),
-                  []
+                  [],
+                  5
             );
       });
       test('boundary conditions', () => {
@@ -58,8 +59,8 @@ describe('SDO with no Blocked Dates', () => {
 
             sdoClass.updateSDO(10);
             expect(sdoClass.SDOArray[1]).toEqual([10]);
-            sdoClass.updateSDO(8);
-            expect(sdoClass.SDOArray[1]).toEqual([8, 9, 10]);
+            sdoClass.updateSDO(12);
+            expect(sdoClass.SDOArray[1]).toEqual([10, 11, 12]);
       });
       test('check for swapping the arrays when earlier date is selected', () => {
             sdoClass.updateSDO(10);
@@ -87,10 +88,10 @@ describe('SDO with no Blocked Dates', () => {
             sdoClass.updateSDO(21);
             expect(sdoClass.SDOArray[1]).toEqual([20, 21]);
 
-            sdoClass.updateSDO(12);
-            expect(sdoClass.SDOArray[1]).toEqual([12]);
+            sdoClass.updateSDO(13);
+            expect(sdoClass.SDOArray[1]).toEqual([13]);
             expect(sdoClass.SDOArray[0]).toEqual([5, 6, 7]);
-            expect(sdoClass.SDOArray[1]).toEqual([12]);
+            expect(sdoClass.SDOArray[1]).toEqual([13]);
       });
       test('middle date selection extends the first list from right side', () => {
             sdoClass.updateSDO(5);
@@ -118,7 +119,7 @@ describe('SDO with no Blocked Dates', () => {
             expect(sdoClass.SDOArray[0]).toEqual([5, 6, 7]);
             expect(sdoClass.SDOArray[1]).toEqual([17, 18, 19, 20]);
       });
-      test('check for gap erros between the dates', () => {
+      test('check for gap errors between the dates', () => {
             sdoClass.updateSDO(1);
             sdoClass.updateSDO(3);
             expect(sdoClass.SDOArray[0]).toEqual([1, 2, 3]);
@@ -170,11 +171,12 @@ describe('SDO with Blocked Dates', () => {
             sdoClass.updateSDO(3);
             expect(sdoClass.SDOArray[0]).toEqual([1, 2, 3]);
 
-            sdoClass.updateSDO(10);
-            sdoClass.updateSDO(11);
-            expect(sdoClass.SDOArray[1]).toEqual([10, 11]);
-
             sdoClass.updateSDO(14);
-            expect(sdoClass.SDOArray[1]).toEqual([14]);
+            sdoClass.updateSDO(16);
+            expect(sdoClass.SDOArray[1]).toEqual([14, 15, 16]);
+
+            sdoClass.updateSDO(11);
+            console.log(sdoClass.SDOArray);
+            expect(sdoClass.SDOArray[1]).toEqual([11]);
       });
 });
