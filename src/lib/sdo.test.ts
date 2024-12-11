@@ -166,7 +166,7 @@ describe('SDO with Blocked Dates', () => {
             sdoClass.updateSDO(12);
             expect(sdoClass.SDOArray[1]).toEqual([10]);
       });
-      test('Stop selecting the dates once blockdate is encountered', () => {
+      test('if extension happened without including the date(s) from current SDO', () =>{
             sdoClass.updateSDO(1);
             sdoClass.updateSDO(3);
             expect(sdoClass.SDOArray[0]).toEqual([1, 2, 3]);
@@ -178,5 +178,147 @@ describe('SDO with Blocked Dates', () => {
             sdoClass.updateSDO(11);
             console.log(sdoClass.SDOArray);
             expect(sdoClass.SDOArray[1]).toEqual([11]);
+      });
+});
+
+describe('Freezed SDO available', () => {
+      let sdoClass = new sdo.SDOSelection(
+            new Array(30).fill(0).map((_, i) => i + 1),
+            [],
+            5,
+            [[], [7, 8, 9, 10]],
+            true
+      );
+      beforeEach(() => {
+            sdoClass = new sdo.SDOSelection(
+                  new Array(30).fill(0).map((_, i) => i + 1),
+                  [],
+                  5,
+                  [[], [7, 8, 9, 10]],
+                  true
+            );
+      });
+
+      test('select dates in freezed SDO does not change anything', () => {
+            sdoClass.updateSDO(3);
+            expect(sdoClass.SDOArray[0]).toEqual([]);
+            sdoClass.updateSDO(4);
+            expect(sdoClass.SDOArray[0]).toEqual([]);
+            sdoClass.updateSDO(5);
+            expect(sdoClass.SDOArray[0]).toEqual([]);
+            sdoClass.updateSDO(6);
+            expect(sdoClass.SDOArray[0]).toEqual([]);
+      });
+      test('cannot select dates in 5 days of vicinity of the freezed SDO', () => {
+            // Left 5 days
+            sdoClass.updateSDO(2);
+            expect(sdoClass.errorFlag).toBe(true);
+            sdoClass.updateSDO(3);
+            expect(sdoClass.errorFlag).toBe(true);
+            sdoClass.updateSDO(4);
+            expect(sdoClass.errorFlag).toBe(true);
+            sdoClass.updateSDO(5);
+            expect(sdoClass.errorFlag).toBe(true);
+            sdoClass.updateSDO(6);
+            expect(sdoClass.errorFlag).toBe(true);
+
+            // Right 5 days
+            sdoClass.updateSDO(11);
+            expect(sdoClass.errorFlag).toBe(true);
+            sdoClass.updateSDO(12);
+            expect(sdoClass.errorFlag).toBe(true);
+            sdoClass.updateSDO(13);
+            expect(sdoClass.errorFlag).toBe(true);
+            sdoClass.updateSDO(14);
+            expect(sdoClass.errorFlag).toBe(true);
+            sdoClass.updateSDO(15);
+            expect(sdoClass.errorFlag).toBe(true);
+      }) 
+      test('able to select 6th day from the freezed SDO', () => {
+            sdoClass.updateSDO(1);
+            expect(sdoClass.SDOArray[0]).toEqual([1]);
+            
+            sdoClass.updateSDO(16);
+            expect(sdoClass.SDOArray[0]).toEqual([16]);
+      });
+      test('extend the SDO from left with valid gap', () => {
+            sdoClass.updateSDO(18);
+            expect(sdoClass.SDOArray[0]).toEqual([18]);
+
+            sdoClass.updateSDO(16);
+            expect(sdoClass.SDOArray[0]).toEqual([16, 17, 18]);
+      });
+      test('cannot extend the SDO from left with invalid gap', () => {
+            sdoClass.updateSDO(17);
+            expect(sdoClass.SDOArray[0]).toEqual([17]);
+
+            sdoClass.updateSDO(15);
+            expect(sdoClass.errorFlag).toBe(true);
+            expect(sdoClass.SDOArray[0]).toEqual([17]);
+      });
+      test('extend the SDO from right with valid gap', () => {
+            sdoClass = new sdo.SDOSelection(
+                  new Array(30).fill(0).map((_, i) => i + 1),
+                  [],
+                  5,
+                  [[], [10, 11, 12, 13]],
+                  true
+            );
+            sdoClass.updateSDO(1);
+            expect(sdoClass.SDOArray[0]).toEqual([1]);
+            sdoClass.updateSDO(3);
+            expect(sdoClass.SDOArray[0]).toEqual([1, 2, 3]);
+      });
+      test('cannot extend the SDO from right with invalid gap', () => {
+            sdoClass = new sdo.SDOSelection(
+                  new Array(30).fill(0).map((_, i) => i + 1),
+                  [],
+                  5,
+                  [[], [10, 11, 12, 13]],
+                  true
+            );
+            sdoClass.updateSDO(3);
+            expect(sdoClass.SDOArray[0]).toEqual([3]);
+            sdoClass.updateSDO(5);
+            expect(sdoClass.errorFlag).toBe(true);
+            expect(sdoClass.SDOArray[0]).toEqual([3]);
+      });
+      test('selecting the middle dates of SDO empties the SDO', () => {
+            sdoClass.updateSDO(16);
+            expect(sdoClass.SDOArray[0]).toEqual([16]);
+
+            sdoClass.updateSDO(19);
+            expect(sdoClass.SDOArray[0]).toEqual([16, 17, 18, 19]);
+
+            sdoClass.updateSDO(17);
+            expect(sdoClass.SDOArray[0]).toEqual([]);
+      });
+      test('selecting boundary dates of SDO removes boundary values', () => {
+            sdoClass.updateSDO(16);
+            expect(sdoClass.SDOArray[0]).toEqual([16]);
+
+            sdoClass.updateSDO(19);
+            expect(sdoClass.SDOArray[0]).toEqual([16, 17, 18, 19]);
+
+            sdoClass.updateSDO(16);
+            expect(sdoClass.SDOArray[0]).toEqual([17, 18, 19]);
+            sdoClass.updateSDO(19);
+            expect(sdoClass.SDOArray[0]).toEqual([17, 18]);
+            sdoClass.updateSDO(18);
+            expect(sdoClass.SDOArray[0]).toEqual([17]);
+            sdoClass.updateSDO(17);
+            expect(sdoClass.SDOArray[0]).toEqual([]);
+      });
+      test('select far away dates to create new SDOs', () => {
+            sdoClass.updateSDO(1);
+            expect(sdoClass.SDOArray[0]).toEqual([1]);
+
+            sdoClass.updateSDO(16);
+            expect(sdoClass.SDOArray[0]).toEqual([16]);
+            sdoClass.updateSDO(18);
+            expect(sdoClass.SDOArray[0]).toEqual([16, 17, 18]);
+
+            sdoClass.updateSDO(25);
+            expect(sdoClass.SDOArray[0]).toEqual([25]);
       });
 });

@@ -5,8 +5,8 @@ import { SDOSelection } from './lib/sdo';
 export default function App() {
 
   const [sdoClass, setSDOClass] = useState<SDOSelection>();
-  const [blockedDates, setBlockedDates] = useState<number[]>([4, 5, 6, 7, 12, 13, 24, 25, 26, 27]);
-  //const [blockedDates, setBlockedDates] = useState<number[]>([]);
+  //const [blockedDates, setBlockedDates] = useState<number[]>([4, 5, 6, 7, 12, 13, 24, 25, 26, 27]);
+  const [blockedDates, setBlockedDates] = useState<number[]>([]);
   const ref = useRef<number[]>([]);
   const [value, setValue] = useState<string>('');
   useEffect(() => {
@@ -14,6 +14,8 @@ export default function App() {
       new Array(30).fill(0).map((_, i) => i + 1),
       blockedDates,
       5,
+      [[], [7, 8, 9, 10]],
+      true
     );
     setSDOClass(sdoSelection);
     return () => {
