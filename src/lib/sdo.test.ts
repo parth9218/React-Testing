@@ -71,7 +71,7 @@ describe('SDO with no Blocked Dates', () => {
             expect(sdoClass.SDOArray[0]).toEqual([4]);
             expect(sdoClass.SDOArray[1]).toEqual([10, 11, 12, 13]);
       });
-      test('check for second SDO insertion when the selected date cannot be appended', () => {
+      test('check for second SDO insertion when the selected date cannot be appended & gap is maintained', () => {
             sdoClass.updateSDO(2);
             sdoClass.updateSDO(4);
             expect(sdoClass.SDOArray[0]).toEqual([2, 3, 4]);
@@ -79,6 +79,24 @@ describe('SDO with no Blocked Dates', () => {
             sdoClass.updateSDO(10);
             expect(sdoClass.SDOArray[1]).toEqual([10]);
       })
+      test('replace the first if the second SDO can\'t be created due to gap restrictions', () => {
+            sdoClass.updateSDO(2);
+            sdoClass.updateSDO(4);
+            expect(sdoClass.SDOArray[0]).toEqual([2, 3, 4]);
+
+            sdoClass.updateSDO(9);
+            expect(sdoClass.SDOArray[0]).toEqual([9]);
+      })
+      test('selected date at left side with 1 SDO and no attachment possible, second should not be created due to gap restrictions', () => {
+            sdoClass.updateSDO(10);
+            sdoClass.updateSDO(8);
+            expect(sdoClass.SDOArray[0]).toEqual([8, 9, 10]);
+            expect(sdoClass.SDOArray[1]).toEqual([]);
+
+            sdoClass.updateSDO(4);
+            expect(sdoClass.SDOArray[0]).toEqual([4]);
+            expect(sdoClass.SDOArray[1]).toEqual([]);
+      });
       test('middle date selection replaces the second list', () => {
             sdoClass.updateSDO(5);
             sdoClass.updateSDO(7);

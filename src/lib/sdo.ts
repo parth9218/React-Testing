@@ -53,6 +53,9 @@ export class SDOSelection {
     //   isAtRightSideAttach(selectedDate, sdo1) ||
     //   isAtLeftSideAttach(selectedDate, sdo2);
 
+    const gapCheckSelectedDate = (selectedDate: number, sdo: number[]) => (sdo[sdo.length - 1] + this.gap < selectedDate || (selectedDate < sdo[0] - this.gap));
+    
+
     const canGapBeMaintained = (selectedDate: number, sdo1: number[], sdo2: number[]) => {
       if (sdo1.length === 0 || sdo2.length === 0) return true;
       if (sdo1[0] > sdo2[0]) {
@@ -154,13 +157,17 @@ export class SDOSelection {
 
 
     if (isAtLeftSideNoAttach(selectedDate, this.SDO[0])) {
-      if (!this.isFreezedAvailable) {
+      if (!this.isFreezedAvailable && gapCheckSelectedDate(selectedDate, this.SDO[0])) {
         this.SDO[1] = this.SDO[0];
       }
       this.SDO[0] = [selectedDate];
       return;
     } else if (isOneSDOExists() && isAtRightSideNoAttach(selectedDate, this.SDO[0])) {
-      this.SDO[this.isFreezedAvailable ? 0 : 1] = [selectedDate];
+      if(!gapCheckSelectedDate(selectedDate, this.SDO[0])) {
+        this.SDO[0] = [selectedDate];
+      } else {
+        this.SDO[this.isFreezedAvailable ? 0 : 1] = [selectedDate];
+      }
       return;
     } else if (isAtLeftSideAttach(selectedDate, this.SDO[0])) {
       this.SDO[0] = adjustSDOFromLeft(selectedDate, this.SDO[0]);
