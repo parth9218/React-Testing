@@ -11,12 +11,13 @@ export default function App() {
   const [value, setValue] = useState<string>('');
   useEffect(() => {
     const sdoSelection = new SDOSelection(
-      new Array(30).fill(0).map((_, i) => i + 1),
+      [30, 31, ...new Array(27).fill(0).map((_, i) => i + 1)],
       blockedDates,
       5,
-      [[], [7, 8, 9, 10]],
-      true
+      // [[], [7, 8, 9, 10]],
+      // true
     );
+    console.log([30, 31, ...new Array(27).fill(0).map((_, i) => i + 1)])
     setSDOClass(sdoSelection);
     return () => {
       console.log(ref.current);
@@ -37,7 +38,7 @@ export default function App() {
         type="number"
         onKeyUp={(e) => {
           if (e.key === 'Enter') {
-            sdoClass?.updateSDO(parseInt(value.toString()));
+            sdoClass?.updateSDO(value.trim());
             ref.current.push(parseInt(value.toString()));
             setValue('');
             console.log('1st list', sdoClass?.SDOArray[0]);

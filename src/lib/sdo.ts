@@ -1,32 +1,50 @@
 
 export class SDOSelection {
   private blockedDates: number[];
-  private SDO: number[][];
-  private errorFlag: boolean;
+  private SDO: number[][] = [[], []];
+  private errorFlag: boolean = false;
   private range: number[];
   private isFreezedAvailable: boolean;
-  private freezedSDO: number[];
+  private freezedSDO: number[] = [];
   private gap: number = 5;
+  private _mappedRange: { [key: number]: string } = {};
 
   get error() {
     return this.errorFlag;
   }
   get SDOArray() {
-    return this.SDO;
+    let sdoArr: [string[], string[]] = [[], []];
+    sdoArr[0] = this.SDO[0].map((date) => this._mappedRange[date]);
+    if(!this.isFreezedAvailable) {
+      sdoArr[1] = this.SDO[1].map((date) => this._mappedRange[date]);
+    }
+    return sdoArr;
   }
-  constructor(range: number[], blockedDates: number[], gap: number, SDO?: number[][], isFreezedAvailable?: boolean) {
-    this.blockedDates = blockedDates;
-    this.range = range;
-    this.errorFlag = false;
+
+  private mapTheSelectedDate(selectedDate: string) {
+    return parseInt(Object.keys(this._mappedRange).find(key => this._mappedRange[parseInt(key)] === selectedDate)!);
+  }
+
+  constructor(range: string[], blockedDates: string[], gap: number, SDO: string[][] = [[], []], isFreezedAvailable?: boolean) {
+    this._mappedRange = range.reduce((acc, curr, i) => ({
+      ...acc,
+      [i + 1]: curr
+    }), {});
+    this.range = range.map((_, i) => i + 1);
     if(gap) this.gap = gap;
 
     this.isFreezedAvailable = isFreezedAvailable || false;
-    this.SDO = SDO || [[], []];
-    this.freezedSDO = this.isFreezedAvailable ? this.SDO[1] : [];
-    this.SDO[1] = this.isFreezedAvailable ? [] : this.SDO[1];
+    this.blockedDates = blockedDates.map((date) => this.mapTheSelectedDate(date.toString()));
+    this.SDO[0] = SDO[0].map((date) => this.mapTheSelectedDate(date.toString()));
+    if(this.isFreezedAvailable) {
+      this.freezedSDO = SDO[1].map((date) => this.mapTheSelectedDate(date.toString()));
+    } else {
+      this.SDO[1] = SDO[1].map((date) => this.mapTheSelectedDate(date.toString()));
+    }
   }
 
-  updateSDO(selectedDate: number) {
+  updateSDO(date: string) {
+    const selectedDate = this.mapTheSelectedDate(date);
     this.errorFlag = false;
 
     const checkForBoundaries = (selectedDate: number | null, min: number | null, max: number | null) =>
