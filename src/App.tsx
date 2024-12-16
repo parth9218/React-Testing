@@ -6,16 +6,16 @@ export default function App() {
 
   const [sdoClass, setSDOClass] = useState<SDOSelection>();
   //const [blockedDates, setBlockedDates] = useState<number[]>([4, 5, 6, 7, 12, 13, 24, 25, 26, 27]);
-  const [blockedDates, setBlockedDates] = useState<number[]>([]);
+  const [blockedDates, setBlockedDates] = useState<string[]>([]);
   const ref = useRef<number[]>([]);
   const [value, setValue] = useState<string>('');
   useEffect(() => {
     const sdoSelection = new SDOSelection(
-      [30, 31, ...new Array(27).fill(0).map((_, i) => i + 1)],
+      ['30', '31', ...new Array(27).fill(0).map((_, i) => (i + 1).toString())],
       blockedDates,
       5,
-      // [[], [7, 8, 9, 10]],
-      // true
+      [[], ['30', '31']],
+      true
     );
     console.log([30, 31, ...new Array(27).fill(0).map((_, i) => i + 1)])
     setSDOClass(sdoSelection);

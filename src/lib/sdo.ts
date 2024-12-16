@@ -203,8 +203,16 @@ export class SDOSelection {
         }
       }
     }
-    else if (isTwoSDOExists() && (isAtLeftSideNoAttach(selectedDate, this.SDO[1]) || isAtRightSideNoAttach(selectedDate, this.SDO[1]))) {
+    else if (isTwoSDOExists() && (isAtLeftSideNoAttach(selectedDate, this.SDO[1]))) {
+      if(gapCheckSelectedDate(selectedDate, this.SDO[0])) {
+        this.SDO[1] = [selectedDate];
+      } else {
+        this.errorFlag = true;
+      }
+      return;
+    } else if(isTwoSDOExists() && isAtRightSideNoAttach(selectedDate, this.SDO[1])) {
       this.SDO[1] = [selectedDate];
+      return;
     } else if (isTwoSDOExists() && isAtRightSideAttach(selectedDate, this.SDO[1])) {
       this.SDO[1] = adjustSDOFromRight(selectedDate, this.SDO[1]);
     } else if (isTwoSDOExists() && isAtLeftSideAttach(selectedDate, this.SDO[1])) {
